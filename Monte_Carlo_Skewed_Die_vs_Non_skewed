@@ -1,0 +1,88 @@
+# Language: R
+#Loaded Dice (Unfair Dice)
+N <- 8000
+#set.seed(1)
+r_listA <- runif(N);
+r_listB <- runif(N);
+
+r_list_die1 <-runif(N);
+r_list1_die2 <-runif(N);
+
+hands_in_the_entire_game <- N/2 #normalize from N being the sample size to N/howmanydiceareina hand being the sample size (hand rolls of X die, N rolled die in total N/X = hands in the entire game)
+
+perceived_outcome_regularA <- cut(r_listA, 
+                         breaks = c(0, 1/6, 2/6, 3/6, 4/6, 5/6, 1), 
+                         labels = 1:6, 
+                         include.lowest = TRUE)
+perceived_outcome_regularB <- cut(r_listB, 
+                                  breaks = c(0, 1/6, 2/6, 3/6, 4/6, 5/6, 1), 
+                                  labels = 1:6, 
+                                  include.lowest = TRUE)
+
+perceived_outcome_die1 <- cut(r_list_die1, 
+                         breaks = c(0, 1/10, 2/10, 4/10, 7/10, 9/10, 10/10), 
+                         labels = 1:6, 
+                         include.lowest = TRUE)
+#skewed die DIE ONE probability and generator
+
+perceived_outcome_die2 <- cut(r_list1_die2, 
+                         breaks = c(0, 3/10, 4/10, 6/10, 7/10, .75, 1), 
+                         labels = 1:6, 
+                         include.lowest = TRUE)
+#nonskeweddie DIE 2 probability and generator
+#a roll of 2 die, skewed and non skewed together
+matrix_outcome_die1 <- matrix(perceived_outcome_die1, ncol = 1, byrow = TRUE)
+matrix_outcome_die2 <- matrix(perceived_outcome_die2, ncol = 1, byrow = TRUE)
+matrix_outcome_regularA <- matrix(perceived_outcome_regularA, ncol = 1, byrow = TRUE)
+matrix_outcome_regularB <- matrix(perceived_outcome_regularB, ncol = 1, byrow = TRUE)
+
+
+#unfair hand
+UnfairDiceRollHand <- cbind(as.numeric(matrix_outcome_die1), as.numeric(matrix_outcome_die2) )
+unfair_above_ten <- 0
+
+for (i in 1:hands_in_the_entire_game) {
+  SumOfUnfairHandPair <- rowSums(UnfairDiceRollHand)
+  
+  if(SumOfUnfairHandPair[i] >= 10){
+    unfair_above_ten<-unfair_above_ten+1
+  }
+  
+}
+
+TotalUnfairSum <- sum(UnfairDiceRollHand)
+MeanHandValueOfUnfairDie <- TotalUnfairSum/hands_in_the_entire_game
+#end of unfair hand
+#fair hand
+fair_above_ten <- 0
+
+FairDiceRollHand <- cbind(as.numeric(matrix_outcome_regularA), as.numeric(matrix_outcome_regularB) )
+
+for (i in 1:hands_in_the_entire_game) {
+  SumOfFairHandPair <- rowSums(FairDiceRollHand)
+  
+  if(SumOfFairHandPair[i] >= 10){
+    fair_above_ten<-fair_above_ten+1
+  }
+  
+}
+
+TotalFairSum <- sum(SumOfFairHandPair)
+MeanHandValueOfFairDie <- TotalFairSum/hands_in_the_entire_game
+#end fair hand
+
+message1 <- paste('the mean of the unfair die given', hands_in_the_entire_game,'hands is', MeanHandValueOfUnfairDie)
+print(message1)
+
+message2 <- paste('the mean of the fair die given', hands_in_the_entire_game,'hands is', MeanHandValueOfFairDie)
+print(message2)
+
+message3 <- paste('the absolute error is', abs(MeanHandValueOfFairDie-MeanHandValueOfUnfairDie),'. The fair hand mean is larger by this amount' )
+print(message3)
+
+message4 <- paste('the probability of the unfair dice summing to over ten is', unfair_above_ten/hands_in_the_entire_game)
+print(message4)
+
+message5 <- paste('the probability of the fair dice summing to over ten is', fair_above_ten/hands_in_the_entire_game)
+print(message5)
+
