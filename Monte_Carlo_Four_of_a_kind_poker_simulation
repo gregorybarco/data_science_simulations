@@ -1,0 +1,58 @@
+N <- 100000
+#set.seed(3)
+#seed 3 split in to 5 per row has 4 of a kind on dice roll (row number 3 and 20 and 846)
+
+
+# Generate random numbers between 0 and 1
+r_list <- runif(N)
+
+# Use the cut function to categorize values into dice outcomes
+perceived_outcome <- cut(r_list, 
+                         breaks = c(0, 1/6, 2/6, 3/6, 4/6, 5/6, 1), 
+                         labels = 1:6, 
+                         include.lowest = TRUE)
+#breaks creates bin intervals, and uses these values for the intervals specified over [0,1]
+#labels are the corresponding values for each bin, 1:6 means 1,2,3,4,5,6 corresponds to 
+#include.lowest is set to true so any lowest values (minimums) are included in our bin.
+#these cut up and binned items are stored as factors( types of items with qualities, not integers)
+
+##test 
+#table(perceived_outcome)
+##test 
+
+# Convert factor to numeric
+perceived_outcome <- as.numeric(perceived_outcome)
+
+# Reshape into matrix with 5 columns (each row is one trial)
+matrix_outcome <- matrix(perceived_outcome, ncol = 5, byrow = TRUE)
+
+#test of the row output
+##matrix_outcome[3,]
+##test 
+
+#Table funct as listed on HW...
+#table(matrix_outcome[3,]) #THE OUTCOME IS NUMBER NUMBER NUMBER and underneath is the frequency for this row
+#max(table(matrix_outcome[3,])) #the maximum is the 4 in a row
+##test 
+
+
+#initialize counter before looping through matrix rows and count when the max of table is == 4.
+fourinarowsdetected <- 0
+
+for (x in 1: (N/5) ){
+  if (max(table(matrix_outcome[x,])) ==4 ){
+    fourinarowsdetected <- fourinarowsdetected + 1
+  }
+}
+
+MonteCarloResult4inaRow <- fourinarowsdetected/ (N/5)
+#divide N/5 since we need to divide by the number of hand rolls (which are grouped by 5 since its no longer a vector of N individual components, now its N/5 hand rolls
+
+#Theoretical 4-IN-A-ROW house would be 5*6*5/6/6^4 = 0.0192901234568
+absolute_error <- abs(0.0192901234568-MonteCarloResult4inaRow)
+
+message1 <- paste('The approximation of the 4-of-a-kind hand appearing out of 5 fair die, rolled in 1 hand using the Monte Carlo method is', MonteCarloResult4inaRow)
+message(message1)
+
+message2 <- paste('The absolute error of approximation of the 4-of-a-kind hand appearing out of 5 fair die, rolled in 1 hand using the Monte Carlo method is', absolute_error)
+message(message2)
