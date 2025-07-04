@@ -1,0 +1,45 @@
+N <- 100000
+##set.seed(3)
+#row 11 has three 6's and two 2's for seed 3
+#row 5 has three 1's and two 2's
+#row 7 has three 3's and two 2's
+#row 13 - for N = 100, good check for full house counter.. great. it works
+
+r_list <- runif(N)
+
+perceived_outcome <- cut(r_list, 
+                         breaks = c(0, 1/6, 2/6, 3/6, 4/6, 5/6, 1), 
+                         labels = 1:6, 
+                         include.lowest = TRUE)
+
+#table(perceived_outcome)
+
+# Convert factor to numeric
+perceived_outcome <- as.numeric(perceived_outcome)
+
+# Reshape into matrix with 5 columns (each row is one trial)
+matrix_outcome <- matrix(perceived_outcome, ncol = 5, byrow = TRUE)
+
+#test of the row output
+#matrix_outcome[5,]
+
+#Table funct as listed on HW...
+#table(matrix_outcome[5,]) #THE OUTCOME IS NUMBER NUMBER and underneath is the frequency for this row
+#counter for full homes!
+full_house_counter <- 0
+
+for (x in 1: (N/5) ){
+  tabledunits<-table(matrix_outcome[x,])
+  if  (any (tabledunits %in% 2) && any (tabledunits %in% 3)) {full_house_counter<-full_house_counter+1}
+}
+
+MonteCarloResultFullHouse <- full_house_counter/ (N/5)
+
+#Theoretical full house would be 10*1*(1/6^3)*(5/6) = 0.03858024691
+absolute_error <- abs(0.03858024691-MonteCarloResultFullHouse)
+
+message1 <- paste('The Monte Carlo approximation of the full house hand appearing out of 5 fair dice, rolled in 1 hand is', MonteCarloResultFullHouse)
+message(message1)
+
+message2 <- paste('The absolute error of approximation of the full house hand appearing out of 5 fair dice, rolled in 1 hand using the Monte Carlo method is', absolute_error)
+message(message2)
